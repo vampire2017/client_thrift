@@ -122,7 +122,7 @@ void SubQposeImg::spin(const ros::TimerEvent &e)
 	{
 		while( !img_flag )
 		{
-			video_cap >> img;
+			imageRead.read_data( &img );  //decide empty
 			if (!img.empty())
 				img_flag = true;
 			else
