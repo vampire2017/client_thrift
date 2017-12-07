@@ -79,9 +79,10 @@ private:
 	ros::Timer timer_;
 	double freq;
 
+	Data data;
 };
 
-SubOdomImgPubPose::SubOdomImgPubPose():socket( new TSocket("192.168.1.92", 9080) ),
+SubOdomImgPubPose::SubOdomImgPubPose():socket( new TSocket("192.168.1.168", 10086) ),
                                        transport( new TBufferedTransport(socket) ),
                                        protocol( new TBinaryProtocol(transport) )
 {
@@ -105,8 +106,8 @@ void SubOdomImgPubPose::exeCb()
 	imageRead.init();
 
 	odom_sub_ = nh_.subscribe( "/odom", 10, &SubOdomImgPubPose::receiveClientCb, this);
-	reloc_pose_pub_ = nh_.advertise<geometry_msgs::Pose2D>( "/Q_reloc_pose2d", 10 );
-	reloc_motion_pub_ = nh_.advertise<std_msgs::Bool>( "/Q_reloc_motion", 2 );
+	reloc_pose_pub_ = nh_.advertise<geometry_msgs::Pose2D>( "/Q_reloc_pose", 10 );
+	reloc_motion_pub_ = nh_.advertise<std_msgs::Bool>( "/Q_pose_status", 2 );
 	timer_ = nh_private.createTimer( ros::Duration(1.0/freq), &SubOdomImgPubPose::spin, this );
 
 }
@@ -158,9 +159,10 @@ void SubOdomImgPubPose::spin(const ros::TimerEvent &e)
 	}
 	std::cout << "read img ok ... " << std::endl;
 
-	tmp_x = odom_x_;
-	tmp_y = odom_y_;
-	tmp_th = odom_th_;
+
+	data.x = odom_x_;
+	data.y = odom_y_;
+	data.th = odom_th_;
 
 	///img imencode
 	cv::resize( img, img, cv::Size(640,480) );
@@ -168,8 +170,11 @@ void SubOdomImgPubPose::spin(const ros::TimerEvent &e)
 	cv::imencode( ".jpg", img, buf_img );
 	std::string str_encode( buf_img.begin(), buf_img.end() );
 
-	client.resultReturn( result_pose, str_encode, tmp_x, tmp_y, tmp_th );
+	client.resultReturn( result_pose, str_encode, "myhid", data );
 
+	std::cout << "result: " << result_pose << std::endl;
+
+	/*
 	if ( result_pose.empty() )
 		std::cerr << " relocal failed..." << std::endl;  //@todo  这可以返回失败的情况
 	else
@@ -233,6 +238,8 @@ void SubOdomImgPubPose::spin(const ros::TimerEvent &e)
 		}
 
 	}  //end --result_pose.empty()
+	*/
+
 }
 
 

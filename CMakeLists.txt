@@ -158,32 +158,32 @@ target_link_libraries(client_vo_reloc_node
         )
 
 
-add_executable(client_create_database_node
-        src/client_create_database_node.cpp
-
-        src/test_constants.cpp
-        src/test_types.cpp
-        src/TestService.cpp
-        )
-target_link_libraries(client_create_database_node
-        ${catkin_LIBRARIES}
-        ${THRIFT_LIBS}
-        ${OpenCV_LIBS}
-        )
-
-
-add_executable(client_update_database_node
-        src/client_update_database_node.cpp
-
-        src/updateDatabase_constants.cpp
-        src/UpdateService.cpp
-        src/updateDatabase_types.cpp
-        )
-target_link_libraries(client_update_database_node
-        ${catkin_LIBRARIES}
-        ${THRIFT_LIBS}
-        ${OpenCV_LIBS}
-        )
+#add_executable(client_create_database_node
+#        src/client_create_database_node.cpp
+#
+#        src/test_constants.cpp
+#        src/test_types.cpp
+#        src/TestService.cpp
+#        )
+#target_link_libraries(client_create_database_node
+#        ${catkin_LIBRARIES}
+#        ${THRIFT_LIBS}
+#        ${OpenCV_LIBS}
+#        )
+#
+#
+#add_executable(client_update_database_node
+#        src/client_update_database_node.cpp
+#
+#        src/updateDatabase_constants.cpp
+#        src/UpdateService.cpp
+#        src/updateDatabase_types.cpp
+#        )
+#target_link_libraries(client_update_database_node
+#        ${catkin_LIBRARIES}
+#        ${THRIFT_LIBS}
+#        ${OpenCV_LIBS}
+#        )
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
