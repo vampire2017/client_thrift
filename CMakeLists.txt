@@ -158,20 +158,20 @@ target_link_libraries(client_vo_reloc_node
         )
 
 
-#add_executable(client_create_database_node
-#        src/client_create_database_node.cpp
-#
-#        src/test_constants.cpp
-#        src/test_types.cpp
-#        src/TestService.cpp
-#        )
-#target_link_libraries(client_create_database_node
-#        ${catkin_LIBRARIES}
-#        ${THRIFT_LIBS}
-#        ${OpenCV_LIBS}
-#        )
-#
-#
+add_executable(client_create_database_node
+        src/client_create_database_node.cpp
+
+        src/createDb_constants.cpp
+        src/createDb_types.cpp
+        src/CreateDbService.cpp
+        )
+target_link_libraries(client_create_database_node
+        ${catkin_LIBRARIES}
+        ${THRIFT_LIBS}
+        ${OpenCV_LIBS}
+        )
+
+
 #add_executable(client_update_database_node
 #        src/client_update_database_node.cpp
 #
