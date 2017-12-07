@@ -145,7 +145,7 @@ void SubQposeImg::spin(const ros::TimerEvent &e)
 	data.y = pose_y_;
 	data.th = pose_th_;
 	data.stamp = pose_stamp_;
-	std::cout << "stamp:  " << pose_stamp_;
+	std::cout << "stamp:  " << pose_stamp_ << std::endl;
 
 	///img imencode
 	cv::resize( img, img, cv::Size(640,480) );
