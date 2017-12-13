@@ -24,6 +24,8 @@
 #include <client_thrift/ImageRead.hpp>
 #include <chrono>
 
+#include "timer.h"
+
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
@@ -50,7 +52,8 @@ public:
 	ros::Subscriber Qpose_sub_;
 
 	Mat img;
-	double odom_x_, odom_y_, odom_th_;
+	double pose_x_, pose_y_, pose_th_;
+	int pose_stamp_;
 
 	shared_ptr<TTransport> socket;
 	shared_ptr<TTransport> transport;
@@ -61,10 +64,11 @@ private:
 	void spin( const ros::TimerEvent& e);
 	ros::Timer timer_;
 	int freq;
+	internalTimer::Timer time_stamp;
 
 };
 
-SubQposeImg::SubQposeImg():socket( new TSocket("192.168.1.110", 9040) ),
+SubQposeImg::SubQposeImg():socket( new TSocket("192.168.1.168", 10088) ),
                            transport( new TBufferedTransport(socket) ),
                            protocol( new TBinaryProtocol(transport) )
 {
@@ -97,9 +101,11 @@ void SubQposeImg::exeCb()
 	                                           [this](const tf::tfMessageConstPtr &map2odom){
 		                                           std::cout << "odom in ... " << std::endl;
 
-		                                           odom_x_ = map2odom->transforms.begin()->transform.translation.x;
-		                                           odom_y_ = map2odom->transforms.begin()->transform.translation.y;
-		                                           odom_th_ = tf::getYaw( map2odom->transforms.begin()->transform.rotation );} );
+		                                           pose_x_ = map2odom->transforms.begin()->transform.translation.x;
+		                                           pose_y_ = map2odom->transforms.begin()->transform.translation.y;
+		                                           pose_th_ = tf::getYaw( map2odom->transforms.begin()->transform.rotation );
+		                                           pose_stamp_ = time_stamp.ToDAY();
+	                                           } );
 
 //	Qpose_sub_ = nh_.subscribe( "/Q_pose", 10, &SubQposeImg::receiveMap2BaseCb, this );
 
@@ -110,7 +116,6 @@ void SubQposeImg::exeCb()
 void SubQposeImg::spin(const ros::TimerEvent &e)
 {
 	std::cout << "runing ... " << std::endl;
-	Pose tmp_s; //for 时间对齐
 	/**
 	 **@brief 缺少时间对齐
 	 **/
@@ -141,11 +146,13 @@ void SubQposeImg::spin(const ros::TimerEvent &e)
 
 	//@todo 尚未考虑..没有数据的时候odom_x_
 	/// 可以对th进行赋值,传参数的时候需要进行判断即可,,,,,update
-	tmp_s.x = odom_x_;
-	tmp_s.y = odom_y_;
-	tmp_s.th = odom_th_;
+	Pose data;
+	data.x = pose_x_;
+	data.y = pose_y_;
+	data.th = pose_th_;
+	data.stamp = pose_stamp_;
 
-	std::cout << "odom_x:" << tmp_s << std::endl;
+	std::cout << "pose:" << data << std::endl;
 
 	///img imencode
 	cv::resize( img, img, cv::Size(640,480) );
@@ -153,7 +160,7 @@ void SubQposeImg::spin(const ros::TimerEvent &e)
 	cv::imencode( ".jpg", img, buf_img );
 	std::string str_encode( buf_img.begin(), buf_img.end() );
 
-	client.update( str_encode, tmp_s );
+	client.update( str_encode, data );
 
 }
 
@@ -162,9 +169,9 @@ void SubQposeImg::receiveMap2BaseCb(const tf::tfMessage &map2odom)
 {
 
 	std::cout << "odom in ... " << std::endl;
-	odom_x_ = map2odom.transforms.begin()->transform.translation.x;
-	odom_y_ = map2odom.transforms.begin()->transform.translation.y;
-	odom_th_ = tf::getYaw( map2odom.transforms.begin()->transform.rotation );
+	pose_x_ = map2odom.transforms.begin()->transform.translation.x;
+	pose_y_ = map2odom.transforms.begin()->transform.translation.y;
+	pose_th_ = tf::getYaw( map2odom.transforms.begin()->transform.rotation );
 
 }
 
